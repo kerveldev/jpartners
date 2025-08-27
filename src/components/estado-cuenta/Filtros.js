@@ -16,12 +16,12 @@ export default function Filtros() {
                         </select>
                         <input
                             type="date"
-                            className="border border-gray-200 rounded px-3 py-2 text-sm text-[#62380e] bg-white focus:ring-2 focus:ring-[#8c4a11] outline-none"
+                            className="border border-gray-200 rounded px-3 py-2 text-sm text-[#62380e] bg-white focus:ring-2 focus:ring-[#8c4a11] outline-none placeholder:text-gray-400"
                             placeholder="Desde"
                         />
                         <input
                             type="date"
-                            className="border border-gray-200 rounded px-3 py-2 text-sm text-[#62380e] bg-white focus:ring-2 focus:ring-[#8c4a11] outline-none"
+                            className="border border-gray-200 rounded px-3 py-2 text-sm text-[#62380e] bg-white focus:ring-2 focus:ring-[#8c4a11] outline-none placeholder:text-gray-400"
                             placeholder="Hasta"
                         />
 
