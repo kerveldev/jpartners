@@ -1,7 +1,15 @@
+"use client";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 export default function CrearGrupo() {
+    const [tags, setTags] = useState({ guia: true, almuerzo: false });
+
+    function toggleTag(key) {
+        setTags((prev) => ({ ...prev, [key]: !prev[key] }));
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#f5eee5] to-[#ffe7cf] py-12 px-4 md:px-10 flex justify-center">
             <Card className="w-full max-w-3xl bg-white/95 border border-[#e4d1b0] shadow-2xl rounded-3xl">
@@ -34,19 +42,19 @@ export default function CrearGrupo() {
                             <div className="grid grid-cols-2 gap-3">
                                 <label className="border rounded px-3 py-2 flex items-center gap-2">
                                     <input type="radio" name="tipo" />
-                                    <span>Estudiantes</span>
+                                    <span className="text-[#62380e]">Estudiantes</span>
                                 </label>
                                 <label className="border rounded px-3 py-2 flex items-center gap-2">
                                     <input type="radio" name="tipo" />
-                                    <span>Tercera Edad</span>
+                                    <span className="text-[#62380e]">Tercera Edad</span>
                                 </label>
                                 <label className="border rounded px-3 py-2 flex items-center gap-2">
                                     <input type="radio" name="tipo" />
-                                    <span>Especial</span>
+                                    <span className="text-[#62380e]">Especial</span>
                                 </label>
                                 <label className="border rounded px-3 py-2 flex items-center gap-2">
                                     <input type="radio" name="tipo" />
-                                    <span>General</span>
+                                    <span className="text-[#62380e]">General</span>
                                 </label>
                             </div>
                         </div>
@@ -55,21 +63,36 @@ export default function CrearGrupo() {
                             <label className="block text-sm font-semibold text-[#62380e] mb-2">Etiquetas del grupo</label>
                             <p className="text-xs text-gray-500 mb-2">Seleccione las características que aplican a este grupo</p>
                             <div className="flex flex-wrap gap-2">
-                                <span className="inline-block bg-[#e6b88a] text-white px-3 py-1 rounded-full">Requiere guía</span>
-                                <span className="inline-block bg-[#e6b88a] text-white px-3 py-1 rounded-full">Con almuerzo</span>
+                                <button
+                                    type="button"
+                                    aria-pressed={tags.guia}
+                                    onClick={() => toggleTag("guia")}
+                                    className={`inline-flex items-center gap-2 px-3 py-1 rounded-full font-semibold transition-colors ${tags.guia ? "bg-[#8c4a11] text-white" : "bg-white text-[#62380e] border border-gray-200"}`}
+                                >
+                                    Requiere guía
+                                </button>
+
+                                <button
+                                    type="button"
+                                    aria-pressed={tags.almuerzo}
+                                    onClick={() => toggleTag("almuerzo")}
+                                    className={`inline-flex items-center gap-2 px-3 py-1 rounded-full font-semibold transition-colors ${tags.almuerzo ? "bg-[#8c4a11] text-white" : "bg-white text-[#62380e] border border-gray-200"}`}
+                                >
+                                    Con almuerzo
+                                </button>
                             </div>
                             <div className="grid grid-cols-2 gap-3 mt-3">
                                 <label className="border rounded px-3 py-2 flex items-center gap-2">
-                                    <input type="checkbox" /> <span>Accesibilidad</span>
+                                    <input type="checkbox" /> <span className="text-[#62380e]">Accesibilidad</span>
                                 </label>
                                 <label className="border rounded px-3 py-2 flex items-center gap-2">
-                                    <input type="checkbox" /> <span>Taller</span>
+                                    <input type="checkbox" /> <span className="text-[#62380e]">Taller</span>
                                 </label>
                                 <label className="border rounded px-3 py-2 flex items-center gap-2">
-                                    <input type="checkbox" /> <span>Transporte</span>
+                                    <input type="checkbox" /> <span className="text-[#62380e]">Transporte</span>
                                 </label>
                                 <label className="border rounded px-3 py-2 flex items-center gap-2">
-                                    <input type="checkbox" /> <span>Internacional</span>
+                                    <input type="checkbox" /> <span className="text-[#62380e]">Internacional</span>
                                 </label>
                             </div>
                         </div>
