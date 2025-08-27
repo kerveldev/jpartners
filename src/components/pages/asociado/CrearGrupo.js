@@ -31,9 +31,25 @@ export default function CrearGrupo() {
                         <div>
                             <label className="block text-sm font-semibold text-[#62380e] mb-1">Número de personas</label>
                             <div className="inline-flex items-center gap-3">
-                                <button type="button" className="px-3 py-1 border rounded">-</button>
-                                <input type="number" className="px-4 py-2 border rounded w-20 text-center placeholder:text-gray-400" placeholder="25" />
-                                <button type="button" className="px-3 py-1 border rounded">+</button>
+                                <button
+                                    type="button"
+                                    aria-label="decrementar"
+                                    className="px-3 py-1 border rounded bg-white text-[#62380e] border-gray-200 hover:bg-[#f5efe6] font-semibold"
+                                >
+                                    -
+                                </button>
+                                <input
+                                    type="number"
+                                    className="px-4 py-2 border rounded w-20 text-center placeholder:text-gray-400 bg-white text-[#62380e] border-gray-200"
+                                    placeholder="25"
+                                />
+                                <button
+                                    type="button"
+                                    aria-label="incrementar"
+                                    className="px-3 py-1 border rounded bg-white text-[#62380e] border-gray-200 hover:bg-[#f5efe6] font-semibold"
+                                >
+                                    +
+                                </button>
                             </div>
                         </div>
 
