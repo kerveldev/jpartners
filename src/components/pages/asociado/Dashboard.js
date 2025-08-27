@@ -8,10 +8,13 @@ export default function AsociadoDashboard() {
             <Card className="w-full max-w-6xl bg-white/95 border border-[#e4d1b0] shadow-2xl rounded-3xl transition-transform hover:scale-[1.01] hover:shadow-gold/60 duration-200">
                 <CardContent className="p-6 md:p-12">
                     {/* Encabezado principal */}
-                    <header className="flex justify-between items-center mb-8">
-                        <h1 className="text-3xl md:text-4xl font-bold text-[#62380e] tracking-tight">
-                            Mi Panel de Asociado
-                        </h1>
+                    <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                        <div>
+                            <h1 className="text-3xl md:text-4xl font-bold text-[#62380e] tracking-tight">
+                                Mi Panel de Asociado
+                            </h1>
+                            <p className="text-sm text-gray-500 mt-1">Resumen rápido de tus grupos y pagos</p>
+                        </div>
                         <Button className="bg-[#8c4a11] text-white shadow-md text-base px-6 py-2 rounded-xl hover:bg-[#a9641e]">
                             Crear nuevo grupo
                         </Button>
@@ -97,17 +100,15 @@ export default function AsociadoDashboard() {
                                             </p>
                                             <p className="text-xs text-gray-500">Creado: {grupo.fecha}</p>
                                         </div>
-                                        <div className="flex gap-4 flex-wrap mt-2 md:mt-0">
-                                            <p className="text-sm !text-[#62380e] font-medium">
-                                                Visitantes: {grupo.visitantes}
-                                            </p>
-                                            <p className="text-sm !text-[#62380e] font-medium">
-                                                Comisión: {grupo.comision}
-                                            </p>
-                                            <p className="text-sm !text-[#62380e] font-medium">
-                                                Fecha: {grupo.fechaPago}
-                                            </p>
-                                            <Badge className="bg-[#e87517] text-white">Activo</Badge>
+                                        <div className="flex items-center gap-6 mt-3 md:mt-0 w-full md:w-auto">
+                                            <div className="flex gap-4 flex-wrap text-sm text-[#62380e]">
+                                                <span className="font-medium">Visitantes: {grupo.visitantes}</span>
+                                                <span className="font-medium">Comisión: {grupo.comision}</span>
+                                                <span className="font-medium">Fecha: {grupo.fechaPago}</span>
+                                            </div>
+                                            <div className="ml-auto md:ml-4">
+                                                <span className="text-sm font-semibold text-[#e87517]">Activo</span>
+                                            </div>
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -184,15 +185,15 @@ export default function AsociadoDashboard() {
                                             {pago.monto}
                                         </td>
                                         <td className="p-3">
-                                            <Badge
-                                                className={
-                                                    pago.estado === "Pagado"
-                                                        ? "bg-green-500 text-white"
-                                                        : "bg-yellow-500 text-black"
-                                                }
-                                            >
-                                                {pago.estado}
-                                            </Badge>
+                                            {pago.estado === "Pagado" ? (
+                                                <span className="inline-block bg-green-50 text-green-700 px-3 py-1 rounded-full font-semibold text-sm">
+                                                    {pago.estado}
+                                                </span>
+                                            ) : (
+                                                <span className="inline-block bg-yellow-50 text-yellow-800 px-3 py-1 rounded-full font-semibold text-sm">
+                                                    {pago.estado}
+                                                </span>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}
