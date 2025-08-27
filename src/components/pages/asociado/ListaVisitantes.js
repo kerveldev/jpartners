@@ -11,10 +11,10 @@ export default function ListaVisitantes() {
     ];
 
     return (
-        <div className="min-h-screen py-12 px-4 md:px-10 flex items-center justify-center">
-            <Card className="w-full max-w-6xl bg-white/95 border border-[#e4d1b0] shadow-2xl rounded-3xl transition-transform hover:scale-[1.01] hover:shadow-gold/60 duration-200">
-                <div className="max-w-4xl mx-auto">
-                    <h1 className="text-2xl font-bold text-[#8c4a11] mb-2">Lista de Visitantes Registrados</h1>
+        <div className="min-h-screen py-12 px-4 md:px-10 flex justify-center">
+            <Card className="w-full max-w-6xl bg-white/95 border border-[#e4d1b0] shadow-2xl rounded-3xl transition-transform hover:scale-[1.01] duration-200">
+                <CardContent className="p-6 md:p-10">
+                    <h1 className="text-3xl md:text-4xl font-bold text-[#62380e] tracking-tight">Lista de Visitantes Registrados</h1>
                     <p className="text-sm text-gray-600 mb-6">Grupo: Familia Rodríguez - 24 Junio 2023</p>
 
                     <Card className="mb-6">
@@ -65,7 +65,7 @@ export default function ListaVisitantes() {
                     <div className="mt-6">
                         <button className="w-full bg-[#8c4a11] text-white py-3 rounded font-semibold">Finalizar Grupo</button>
                     </div>
-                </div>
+                </CardContent>
             </Card>
         </div>
     );
