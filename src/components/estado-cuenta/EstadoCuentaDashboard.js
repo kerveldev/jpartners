@@ -5,9 +5,9 @@ import Resumen from "./Resumen";
 
 export default function EstadoCuentaDashboard() {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#f5eee5] to-[#ffe7cf] py-10 px-2 md:px-10 flex justify-center">
-            <Card className="w-full max-w-6xl bg-white/95 border border-[#e4d1b0] shadow-2xl rounded-3xl">
-                <CardContent className="p-6 md:p-10">
+        <div className="min-h-screen py-12 px-4 md:px-10 flex items-center justify-center">
+            <Card className="w-full max-w-6xl bg-white/95 border border-[#e4d1b0] shadow-2xl rounded-3xl transition-transform hover:scale-[1.01] hover:shadow-gold/60 duration-200">
+                <CardContent className="p-6 md:p-12">
                     <h1 className="text-2xl md:text-3xl font-bold text-[#62380e] mb-2">
                         Estado de Cuenta
                     </h1>
