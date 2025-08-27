@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 
 export default function AsociadoDashboard() {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#f5eee5] to-[#ffe7cf] py-12 px-2 md:px-10 flex items-center justify-center">
+        <div className="min-h-screen py-12 px-4 md:px-10 flex items-center justify-center">
             <Card className="w-full max-w-6xl bg-white/95 border border-[#e4d1b0] shadow-2xl rounded-3xl transition-transform hover:scale-[1.01] hover:shadow-gold/60 duration-200">
                 <CardContent className="p-6 md:p-12">
                     {/* Encabezado principal */}
