@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 export default function AsociadoDashboard() {
+    const router = useRouter();
     const [groupsData, setGroupsData] = useState([]);
     const [pagination, setPagination] = useState({
         current_page: 1,
@@ -89,7 +91,10 @@ export default function AsociadoDashboard() {
                             </h1>
                             <p className="text-sm text-gray-500 mt-1">Resumen rápido de tus grupos y pagos</p>
                         </div>
-                        <Button className="bg-[#8c4a11] text-white shadow-md text-base px-6 py-2 rounded-xl hover:bg-[#a9641e]">
+                        <Button
+                            onClick={() => router.push('/asociado/crear')}
+                            className="bg-[#8c4a11] text-white shadow-md text-base px-6 py-2 rounded-xl hover:bg-[#a9641e]"
+                        >
                             Crear nuevo grupo
                         </Button>
                     </header>
@@ -362,7 +367,10 @@ export default function AsociadoDashboard() {
                             <p className="text-[#62380e] text-base mb-2 md:mb-0 font-medium">
                                 ¿Listo para crear un nuevo grupo? Organiza una nueva visita y aumenta tus comisiones
                             </p>
-                            <Button className="bg-[#8c4a11] text-white px-8 py-2 rounded-xl text-base shadow hover:bg-[#a9641e]">
+                            <Button
+                                onClick={() => router.push('/asociado/crear')}
+                                className="bg-[#8c4a11] text-white px-8 py-2 rounded-xl text-base shadow hover:bg-[#a9641e]"
+                            >
                                 Crear grupo
                             </Button>
                         </div>
