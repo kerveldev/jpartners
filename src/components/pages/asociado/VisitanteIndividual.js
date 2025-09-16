@@ -219,7 +219,7 @@ export default function VisitanteIndividual() {
                         Registrar Visitantes
                     </h1>
                     <p className="text-sm text-gray-500 mb-6" style={{ fontFamily: 'Encode Sans, sans-serif', fontWeight: 'regular' }}>
-                        Complete los datos de los {groupData.visitors_count} visitantes para el grupo "{groupData.group_name}"
+                        Complete los datos de los {groupData.visitors_count} visitantes para el grupo &ldquo;{groupData.group_name}&rdquo;
                     </p>
 
                     <form onSubmit={handleSubmit} className="space-y-6">

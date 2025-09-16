@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import Filtros from "./Filtros";
 import EstadoCuentaTable from "./EstadoCuentaTable";
@@ -25,7 +25,7 @@ export default function EstadoCuentaDashboard() {
         per_page: 10
     });
 
-    const fetchData = async (page = 1) => {
+    const fetchData = useCallback(async (page = 1) => {
         setLoading(true);
         try {
             const params = new URLSearchParams({
@@ -44,11 +44,11 @@ export default function EstadoCuentaDashboard() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [filters]);
 
     useEffect(() => {
         fetchData(1);
-    }, [filters]);
+    }, [fetchData]);
 
     const handlePageChange = (page) => {
         fetchData(page);
