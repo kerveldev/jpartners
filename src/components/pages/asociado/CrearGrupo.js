@@ -10,32 +10,19 @@ export default function CrearGrupo() {
         promoter_id: 1, // Se puede hacer dinámico en el futuro
         group_name: "",
         visit_date: "",
-        payment_method: "cash",
-        origin_city: "",
-        visitors_count: 1
+        payment_method: "cash", // Valor por defecto
+        origin_city: "Zapopan", // Valor por defecto
     });
-    const [tags, setTags] = useState({ guia: true, almuerzo: false });
     const [loading, setLoading] = useState(false);
-
-    function toggleTag(key) {
-        setTags((prev) => ({ ...prev, [key]: !prev[key] }));
-    }
 
     function handleInputChange(e) {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     }
 
-    function handleVisitorsCountChange(increment) {
-        setFormData(prev => ({
-            ...prev,
-            visitors_count: Math.max(1, prev.visitors_count + increment)
-        }));
-    }
-
     async function handleSubmit(e) {
         e.preventDefault();
-        if (!formData.group_name || !formData.visit_date || !formData.origin_city) {
+        if (!formData.group_name || !formData.visit_date) {
             alert("Por favor complete todos los campos obligatorios");
             return;
         }
@@ -50,170 +37,118 @@ export default function CrearGrupo() {
     }
 
     return (
-         <div className="min-h-screen py-12 px-4 md:px-10 flex justify-center">
-            <Card className="w-full max-w-6xl bg-white/95 border border-[#e4d1b0] shadow-2xl rounded-3xl transition-transform hover:scale-[1.01] duration-200">
-                <CardContent className="p-6 md:p-12">
-                    <h1 className="text-3xl md:text-3xl font-bold text-[#B7804F] mb-2" style={{ fontFamily: 'Roboto Serif, serif', fontWeight: 'medium' }}>Crear Nuevo Grupo</h1>
-                    <p className="text-sm text-gray-500 mb-6" style={{ fontFamily: 'Encode Sans, sans-serif', fontWeight: 'regular' }}>Complete el formulario para registrar un nuevo grupo de visitantes</p>
+         <div className="min-h-screen bg-gray-50 p-4">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6 px-4 py-3 bg-white shadow-sm">
+                <h1 className="text-2xl font-medium text-gray-600" style={{ fontFamily: 'Roboto Serif, serif' }}>LAS JARAS</h1>
+                <div className="flex items-center gap-4">
+                    <span className="text-gray-600">Estado de Cuenta</span>
+                    <span className="text-gray-600">Mis Grupos</span>
+                    <span className="text-gray-600">Perfil</span>
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
+                        <span className="text-sm text-gray-600">Carlos M.</span>
+                    </div>
+                </div>
+            </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-semibold text-[#B7804F] mb-1" style={{ fontFamily: 'Encode Sans, sans-serif', fontWeight: 'semibold' }}>Nombre del grupo *</label>
-                            <input
-                                name="group_name"
-                                value={formData.group_name}
-                                onChange={handleInputChange}
-                                className="w-full border border-gray-200 rounded px-3 py-2 placeholder:text-gray-400"
-                                placeholder="Ej: Limpieza energética de Las Jaras"
-                                required
-                            />
-                        </div>
+            <div className="max-w-2xl mx-auto">
+                <Card className="bg-white shadow-lg rounded-lg">
+                    <CardContent className="p-8">
+                        <h1 className="text-2xl font-medium text-[#B7804F] mb-2" style={{ fontFamily: 'Roboto Serif, serif' }}>
+                            Crear Nuevo Grupo
+                        </h1>
+                        <p className="text-gray-500 mb-8" style={{ fontFamily: 'Encode Sans, sans-serif' }}>
+                            Complete el formulario para registrar un nuevo grupo de visitantes
+                        </p>
 
-                        <div>
-                            <label className="block text-sm font-semibold text-[#B7804F] mb-1" style={{ fontFamily: 'Encode Sans, sans-serif', fontWeight: 'semibold' }}>Fecha de visita *</label>
-                            <input
-                                name="visit_date"
-                                type="date"
-                                value={formData.visit_date}
-                                onChange={handleInputChange}
-                                className="w-full border border-gray-200 rounded px-3 py-2 placeholder:text-gray-400"
-                                required
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-semibold text-[#B7804F] mb-1" style={{ fontFamily: 'Encode Sans, sans-serif', fontWeight: 'semibold' }}>Ciudad de origen *</label>
-                            <input
-                                name="origin_city"
-                                value={formData.origin_city}
-                                onChange={handleInputChange}
-                                className="w-full border border-gray-200 rounded px-3 py-2 placeholder:text-gray-400"
-                                placeholder="Ej: Zapopan"
-                                required
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-semibold text-[#B7804F] mb-1" style={{ fontFamily: 'Encode Sans, sans-serif', fontWeight: 'semibold' }}>Método de pago</label>
-                            <select
-                                name="payment_method"
-                                value={formData.payment_method}
-                                onChange={handleInputChange}
-                                className="w-full border border-gray-200 rounded px-3 py-2 placeholder:text-gray-400"
-                            >
-                                <option value="cash">Efectivo</option>
-                                <option value="card">Tarjeta</option>
-                                <option value="transfer">Transferencia</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-semibold text-[#B7804F] mb-1" style={{ fontFamily: 'Encode Sans, sans-serif', fontWeight: 'semibold' }}>Número de personas</label>
-                            <div className="inline-flex items-center gap-3">
-                                <button
-                                    type="button"
-                                    onClick={() => handleVisitorsCountChange(-1)}
-                                    aria-label="decrementar"
-                                    className="px-3 py-1 border rounded bg-white text-[#B7804F] border-gray-200 hover:bg-[#f5efe6] font-semibold"
-                                >
-                                    -
-                                </button>
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2" style={{ fontFamily: 'Encode Sans, sans-serif' }}>
+                                    Nombre del grupo
+                                </label>
                                 <input
-                                    type="number"
-                                    value={formData.visitors_count}
-                                    readOnly
-                                    className="px-4 py-2 border rounded w-20 text-center placeholder:text-gray-400 bg-white text-[#B7804F] border-gray-200"
+                                    name="group_name"
+                                    value={formData.group_name}
+                                    onChange={handleInputChange}
+                                    className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-500 placeholder:text-gray-400 focus:outline-none focus:border-[#B7804F]"
+                                    placeholder="Ej: Colegio San José 5° Grado"
+                                    required
                                 />
-                                <button
-                                    type="button"
-                                    onClick={() => handleVisitorsCountChange(1)}
-                                    aria-label="incrementar"
-                                    className="px-3 py-1 border rounded bg-white text-[#B7804F] border-gray-200 hover:bg-[#f5efe6] font-semibold"
-                                >
-                                    +
-                                </button>
                             </div>
-                        </div>
 
-                        <div>
-                            <label className="block text-sm font-semibold text-[#B7804F] mb-2" style={{ fontFamily: 'Encode Sans, sans-serif', fontWeight: 'semibold' }}>Tipo de grupo</label>
-                            <div className="grid grid-cols-2 gap-3">
-                                <label className="border rounded px-3 py-2 flex items-center gap-2">
-                                    <input type="radio" name="tipo" />
-                                    <span className="text-[#B7804F]" style={{ fontFamily: 'Encode Sans, sans-serif' }}>Estudiantes</span>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2" style={{ fontFamily: 'Encode Sans, sans-serif' }}>
+                                    Fecha de visita
                                 </label>
-                                <label className="border rounded px-3 py-2 flex items-center gap-2">
-                                    <input type="radio" name="tipo" />
-                                    <span className="text-[#B7804F]" style={{ fontFamily: 'Encode Sans, sans-serif' }}>Tercera Edad</span>
-                                </label>
-                                <label className="border rounded px-3 py-2 flex items-center gap-2">
-                                    <input type="radio" name="tipo" />
-                                    <span className="text-[#B7804F]" style={{ fontFamily: 'Encode Sans, sans-serif' }}>Especial</span>
-                                </label>
-                                <label className="border rounded px-3 py-2 flex items-center gap-2">
-                                    <input type="radio" name="tipo" />
-                                    <span className="text-[#B7804F]" style={{ fontFamily: 'Encode Sans, sans-serif' }}>General</span>
-                                </label>
+                                <input
+                                    name="visit_date"
+                                    type="date"
+                                    value={formData.visit_date}
+                                    onChange={handleInputChange}
+                                    className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-500 focus:outline-none focus:border-[#B7804F]"
+                                    placeholder="DD/MM/AAAA"
+                                    required
+                                />
                             </div>
-                        </div>
 
-                        <div>
-                            <label className="block text-sm font-semibold text-[#B7804F] mb-2" style={{ fontFamily: 'Encode Sans, sans-serif', fontWeight: 'semibold' }}>Etiquetas del grupo</label>
-                            <p className="text-xs text-gray-500 mb-2" style={{ fontFamily: 'Encode Sans, sans-serif' }}>Seleccione las características que aplican a este grupo</p>
-                            <div className="flex flex-wrap gap-2">
-                                <button
-                                    type="button"
-                                    aria-pressed={tags.guia}
-                                    onClick={() => toggleTag("guia")}
-                                    className={`inline-flex items-center gap-2 px-3 py-1 rounded-full font-semibold transition-colors ${tags.guia ? "bg-[#B7804F] text-white" : "bg-white text-[#B7804F] border border-gray-200"}`}
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                                <p className="text-sm text-gray-600" style={{ fontFamily: 'Encode Sans, sans-serif' }}>
+                                    Para crear un nuevo grupo debes añadir por lo menos 1 visitante.
+                                </p>
+                            </div>
+
+                            <div className="pt-4">
+                                <Button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full bg-[#B7804F] text-white hover:bg-[#9A6D42] py-4 rounded-lg font-medium text-lg"
                                     style={{ fontFamily: 'Encode Sans, sans-serif' }}
                                 >
-                                    Requiere guía
-                                </button>
+                                    {loading ? 'Cargando...' : 'Añadir visitantes'}
+                                </Button>
+                            </div>
 
-                                <button
+                            <div className="text-center pt-4">
+                                <button 
                                     type="button"
-                                    aria-pressed={tags.almuerzo}
-                                    onClick={() => toggleTag("almuerzo")}
-                                    className={`inline-flex items-center gap-2 px-3 py-1 rounded-full font-semibold transition-colors ${tags.almuerzo ? "bg-[#B7804F] text-white" : "bg-white text-[#B7804F] border border-gray-200"}`}
+                                    onClick={() => router.push('/asociado')}
+                                    className="text-[#B7804F] text-sm underline" 
                                     style={{ fontFamily: 'Encode Sans, sans-serif' }}
                                 >
-                                    Con almuerzo
+                                    Cancelar y volver al inicio
                                 </button>
                             </div>
-                            <div className="grid grid-cols-2 gap-3 mt-3">
-                                <label className="border rounded px-3 py-2 flex items-center gap-2">
-                                    <input type="checkbox" /> <span className="text-[#B7804F]" style={{ fontFamily: 'Encode Sans, sans-serif' }}>Accesibilidad</span>
-                                </label>
-                                <label className="border rounded px-3 py-2 flex items-center gap-2">
-                                    <input type="checkbox" /> <span className="text-[#B7804F]" style={{ fontFamily: 'Encode Sans, sans-serif' }}>Taller</span>
-                                </label>
-                                <label className="border rounded px-3 py-2 flex items-center gap-2">
-                                    <input type="checkbox" /> <span className="text-[#B7804F]" style={{ fontFamily: 'Encode Sans, sans-serif' }}>Transporte</span>
-                                </label>
-                                <label className="border rounded px-3 py-2 flex items-center gap-2">
-                                    <input type="checkbox" /> <span className="text-[#B7804F]" style={{ fontFamily: 'Encode Sans, sans-serif' }}>Internacional</span>
-                                </label>
-                            </div>
-                        </div>
+                        </form>
+                    </CardContent>
+                </Card>
+            </div>
 
-                        <div className="pt-4">
-                            <Button
-                                type="submit"
-                                disabled={loading}
-                                className="w-full bg-[#B7804F] text-white hover:bg-[#9A6D42]"
-                                style={{ fontFamily: 'Encode Sans, sans-serif', fontWeight: 'semibold' }}
-                            >
-                                {loading ? 'Cargando...' : 'Añadir visitantes'}
-                            </Button>
-                        </div>
-
-                        <div className="text-center text-sm text-[#B7804F] pt-2">
-                            <a href="/asociado" className="underline" style={{ fontFamily: 'Encode Sans, sans-serif' }}>Cancelar y volver al inicio</a>
-                        </div>
-                    </form>
-                </CardContent>
-            </Card>
+            {/* Bottom Navigation */}
+            <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
+                <div className="flex justify-around items-center max-w-md mx-auto">
+                    <button className="flex flex-col items-center gap-1 text-gray-400">
+                        <div className="w-6 h-6 bg-gray-300 rounded"></div>
+                        <span className="text-xs">Inicio</span>
+                    </button>
+                    <button className="flex flex-col items-center gap-1 text-gray-400">
+                        <div className="w-6 h-6 bg-gray-300 rounded"></div>
+                        <span className="text-xs">Grupos</span>
+                    </button>
+                    <button className="flex flex-col items-center gap-1 text-[#B7804F]">
+                        <div className="w-6 h-6 bg-[#B7804F] rounded"></div>
+                        <span className="text-xs">Crear</span>
+                    </button>
+                    <button className="flex flex-col items-center gap-1 text-gray-400">
+                        <div className="w-6 h-6 bg-gray-300 rounded"></div>
+                        <span className="text-xs">Pagos</span>
+                    </button>
+                    <button className="flex flex-col items-center gap-1 text-gray-400">
+                        <div className="w-6 h-6 bg-gray-300 rounded"></div>
+                        <span className="text-xs">Perfil</span>
+                    </button>
+                </div>
+            </div>
         </div>
     );
 }

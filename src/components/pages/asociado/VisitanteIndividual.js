@@ -15,16 +15,22 @@ export default function VisitanteIndividual() {
         const storedGroupData = sessionStorage.getItem('groupData');
         if (storedGroupData) {
             const parsedData = JSON.parse(storedGroupData);
-            setGroupData(parsedData);
+            // Asegurar que tenemos los valores por defecto
+            const completeGroupData = {
+                ...parsedData,
+                payment_method: parsedData.payment_method || "cash",
+                origin_city: parsedData.origin_city || "Zapopan"
+            };
+            setGroupData(completeGroupData);
             
-            // Initialize visitors array based on visitors_count
-            const initialVisitors = Array.from({ length: parsedData.visitors_count }, (_, index) => ({
-                id: index + 1,
+            // Initialize with one visitor to start
+            const initialVisitors = [{
+                id: 1,
                 name: "",
                 lastname: "",
                 birthdate: "",
                 email: ""
-            }));
+            }];
             setVisitors(initialVisitors);
         } else {
             // If no group data, redirect back to create group
@@ -36,6 +42,23 @@ export default function VisitanteIndividual() {
         setVisitors(prev => prev.map((visitor, i) => 
             i === index ? { ...visitor, [field]: value } : visitor
         ));
+    }
+
+    function addVisitor() {
+        const newVisitor = {
+            id: visitors.length + 1,
+            name: "",
+            lastname: "",
+            birthdate: "",
+            email: ""
+        };
+        setVisitors(prev => [...prev, newVisitor]);
+    }
+
+    function removeVisitor(index) {
+        if (visitors.length > 1) {
+            setVisitors(prev => prev.filter((_, i) => i !== index));
+        }
     }
 
     function validateVisitors() {
@@ -67,8 +90,8 @@ export default function VisitanteIndividual() {
                 promoter_id: groupData.promoter_id,
                 group_name: groupData.group_name,
                 visit_date: groupData.visit_date,
-                payment_method: groupData.payment_method,
-                origin_city: groupData.origin_city,
+                payment_method: "cash", // Valor por defecto
+                origin_city: "Zapopan", // Valor por defecto
                 visitors: visitors.map(visitor => ({
                     name: visitor.name,
                     lastname: visitor.lastname,
@@ -219,83 +242,112 @@ export default function VisitanteIndividual() {
                         Registrar Visitantes
                     </h1>
                     <p className="text-sm text-gray-500 mb-6" style={{ fontFamily: 'Encode Sans, sans-serif', fontWeight: 'regular' }}>
-                        Complete los datos de los {groupData.visitors_count} visitantes para el grupo &ldquo;{groupData.group_name}&rdquo;
+                        Complete los datos de los visitantes para el grupo &ldquo;{groupData.group_name}&rdquo;
                     </p>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
-                        {visitors.map((visitor, index) => (
-                            <div key={visitor.id} className="border border-gray-200 rounded-lg p-6 bg-gray-50">
-                                <h3 className="text-lg font-semibold text-[#B7804F] mb-4" style={{ fontFamily: 'Encode Sans, sans-serif', fontWeight: 'semibold' }}>
-                                    Visitante {index + 1}
-                                </h3>
-                                
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-semibold text-[#B7804F] mb-1" style={{ fontFamily: 'Encode Sans, sans-serif', fontWeight: 'semibold' }}>
-                                            Nombre *
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={visitor.name}
-                                            onChange={(e) => handleVisitorChange(index, 'name', e.target.value)}
-                                            className="w-full border border-gray-200 rounded px-3 py-2 placeholder:text-gray-400 bg-white text-[#171717]"
-                                            placeholder="Ej: Juan"
-                                            required
-                                        />
+                        <div className="space-y-4">
+                            <h3 className="text-lg font-semibold text-gray-800 mb-4" style={{ fontFamily: 'Encode Sans, sans-serif', fontWeight: 'semibold' }}>
+                                Visitantes
+                            </h3>
+                            
+                            {visitors.map((visitor, index) => (
+                                <div key={visitor.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h4 className="font-medium text-gray-800" style={{ fontFamily: 'Encode Sans, sans-serif' }}>
+                                            {visitor.name && visitor.lastname ? `${visitor.name} ${visitor.lastname}` : `Visitante ${index + 1}`}
+                                        </h4>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[#B7804F] font-semibold">$200.00 MXN</span>
+                                            {visitors.length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeVisitor(index)}
+                                                    className="text-red-500 hover:text-red-700 text-sm"
+                                                >
+                                                    Eliminar
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
+                                    
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1" style={{ fontFamily: 'Encode Sans, sans-serif' }}>
+                                                Nombre *
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={visitor.name}
+                                                onChange={(e) => handleVisitorChange(index, 'name', e.target.value)}
+                                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-[#B7804F]"
+                                                placeholder="Nombre"
+                                                required
+                                            />
+                                        </div>
 
-                                    <div>
-                                        <label className="block text-sm font-semibold text-[#B7804F] mb-1" style={{ fontFamily: 'Encode Sans, sans-serif', fontWeight: 'semibold' }}>
-                                            Apellido *
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={visitor.lastname}
-                                            onChange={(e) => handleVisitorChange(index, 'lastname', e.target.value)}
-                                            className="w-full border border-gray-200 rounded px-3 py-2 placeholder:text-gray-400 bg-white text-[#171717]"
-                                            placeholder="Ej: Pérez"
-                                            required
-                                        />
-                                    </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1" style={{ fontFamily: 'Encode Sans, sans-serif' }}>
+                                                Apellido *
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={visitor.lastname}
+                                                onChange={(e) => handleVisitorChange(index, 'lastname', e.target.value)}
+                                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-[#B7804F]"
+                                                placeholder="Apellido"
+                                                required
+                                            />
+                                        </div>
 
-                                    <div>
-                                        <label className="block text-sm font-semibold text-[#B7804F] mb-1" style={{ fontFamily: 'Encode Sans, sans-serif', fontWeight: 'semibold' }}>
-                                            Fecha de Nacimiento *
-                                        </label>
-                                        <input
-                                            type="date"
-                                            value={visitor.birthdate}
-                                            onChange={(e) => handleVisitorChange(index, 'birthdate', e.target.value)}
-                                            className="w-full border border-gray-200 rounded px-3 py-2 placeholder:text-gray-400 bg-white text-[#171717]"
-                                            required
-                                        />
-                                    </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1" style={{ fontFamily: 'Encode Sans, sans-serif' }}>
+                                                Fecha de Nacimiento *
+                                            </label>
+                                            <input
+                                                type="date"
+                                                value={visitor.birthdate}
+                                                onChange={(e) => handleVisitorChange(index, 'birthdate', e.target.value)}
+                                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-[#B7804F]"
+                                                required
+                                            />
+                                        </div>
 
-                                    <div>
-                                        <label className="block text-sm font-semibold text-[#B7804F] mb-1" style={{ fontFamily: 'Encode Sans, sans-serif', fontWeight: 'semibold' }}>
-                                            Correo Electrónico *
-                                        </label>
-                                        <input
-                                            type="email"
-                                            value={visitor.email}
-                                            onChange={(e) => handleVisitorChange(index, 'email', e.target.value)}
-                                            className="w-full border border-gray-200 rounded px-3 py-2 placeholder:text-gray-400 bg-white text-[#171717]"
-                                            placeholder="ejemplo@correo.com"
-                                            required
-                                        />
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1" style={{ fontFamily: 'Encode Sans, sans-serif' }}>
+                                                Correo Electrónico *
+                                            </label>
+                                            <input
+                                                type="email"
+                                                value={visitor.email}
+                                                onChange={(e) => handleVisitorChange(index, 'email', e.target.value)}
+                                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-[#B7804F]"
+                                                placeholder="ejemplo@correo.com"
+                                                required
+                                            />
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
 
-                        <div className="pt-4">
+                            <button
+                                type="button"
+                                onClick={addVisitor}
+                                className="w-full border-2 border-dashed border-gray-300 rounded-lg py-4 text-gray-500 hover:border-[#B7804F] hover:text-[#B7804F] transition-colors"
+                                style={{ fontFamily: 'Encode Sans, sans-serif' }}
+                            >
+                                + Añadir otro visitante
+                            </button>
+                        </div>
+
+                        <div className="pt-6">
                             <Button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full bg-[#B7804F] text-white hover:bg-[#9A6D42]"
-                                style={{ fontFamily: 'Encode Sans, sans-serif', fontWeight: 'semibold' }}
+                                className="w-full bg-[#B7804F] text-white hover:bg-[#9A6D42] py-4 rounded-lg font-medium text-lg"
+                                style={{ fontFamily: 'Encode Sans, sans-serif' }}
                             >
-                                {loading ? 'Creando Grupo...' : `Crear Grupo con ${groupData.visitors_count} Visitantes`}
+                                {loading ? 'Creando Grupo...' : 'Crear Grupo'}
                             </Button>
                         </div>
 
@@ -306,7 +358,7 @@ export default function VisitanteIndividual() {
                                 className="underline" 
                                 style={{ fontFamily: 'Encode Sans, sans-serif' }}
                             >
-                                Volver al formulario del grupo
+                                Cancelar y volver al inicio
                             </button>
                         </div>
                     </form>
