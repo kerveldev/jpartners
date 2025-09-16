@@ -22,21 +22,18 @@ export default function VisitanteIndividual() {
                 origin_city: parsedData.origin_city || "Zapopan"
             };
             setGroupData(completeGroupData);
-            
-            // Initialize with one visitor to start
-            const initialVisitors = [{
-                id: 1,
-                name: "",
-                lastname: "",
-                birthdate: "",
-                email: "",
-                phone: ""
-            }];
-            setVisitors(initialVisitors);
-        } else {
-            // If no group data, redirect back to create group
-            router.push('/asociado/crear');
         }
+        
+        // Initialize with one visitor to start
+        const initialVisitors = [{
+            id: 1,
+            name: "",
+            lastname: "",
+            birthdate: "",
+            email: "",
+            phone: ""
+        }];
+        setVisitors(initialVisitors);
     }, [router]);
 
     function handleVisitorChange(index, field, value) {
@@ -76,59 +73,75 @@ export default function VisitanteIndividual() {
     async function handleSubmit(e) {
         e.preventDefault();
         
-        if (!validateVisitors()) {
-            alert("Por favor complete todos los campos de todos los visitantes");
-            return;
-        }
-
-        if (!groupData) {
-            alert("Error: No se encontraron los datos del grupo");
+        const currentVisitor = visitors[0];
+        if (!currentVisitor.name.trim() || !currentVisitor.lastname.trim() || 
+            !currentVisitor.birthdate || !currentVisitor.email.trim()) {
+            alert("Por favor complete todos los campos obligatorios");
             return;
         }
 
         setLoading(true);
 
         try {
-            const requestBody = {
-                promoter_id: groupData.promoter_id,
-                group_name: groupData.group_name,
-                visit_date: groupData.visit_date,
-                payment_method: "cash", // Valor por defecto
-                origin_city: "Zapopan", // Valor por defecto
-                visitors: visitors.map(visitor => ({
-                    name: visitor.name,
-                    lastname: visitor.lastname,
-                    birthdate: visitor.birthdate,
-                    email: visitor.email
-                }))
+            // Get existing visitors from sessionStorage
+            const existingVisitors = JSON.parse(sessionStorage.getItem('addedVisitors') || '[]');
+            
+            // Add current visitor to the list
+            const newVisitor = {
+                id: Date.now(), // Use timestamp as unique ID
+                name: currentVisitor.name,
+                lastname: currentVisitor.lastname,
+                birthdate: currentVisitor.birthdate,
+                email: currentVisitor.email,
+                phone: currentVisitor.phone || '',
+                age: calculateAge(currentVisitor.birthdate),
+                category: getAgeCategory(calculateAge(currentVisitor.birthdate))
             };
 
-            console.log('Enviando datos:', requestBody);
-
-            const response = await fetch('https://lasjaras-api.kerveldev.com/api/promoter-groups', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(requestBody)
-            });
-
-            if (!response.ok) {
-                throw new Error(`Error ${response.status}: ${response.statusText}`);
-            }
-
-            const result = await response.json();
-            console.log('Respuesta de la API:', result);
+            existingVisitors.push(newVisitor);
             
-            setSuccessData(result);
-            sessionStorage.removeItem('groupData'); // Clear stored data
+            // Save back to sessionStorage
+            sessionStorage.setItem('addedVisitors', JSON.stringify(existingVisitors));
+            
+            // Clear form
+            setVisitors([{
+                id: 1,
+                name: "",
+                lastname: "",
+                birthdate: "",
+                email: "",
+                phone: ""
+            }]);
+
+            // Redirect back to create group with success message
+            alert("Visitante guardado exitosamente");
+            router.push('/asociado/crear');
             
         } catch (error) {
-            console.error('Error al crear el grupo:', error);
-            alert(`Error al crear el grupo: ${error.message}`);
+            console.error('Error al guardar visitante:', error);
+            alert(`Error al guardar visitante: ${error.message}`);
         } finally {
             setLoading(false);
         }
+    }
+
+    function calculateAge(birthdate) {
+        const today = new Date();
+        const birth = new Date(birthdate);
+        let age = today.getFullYear() - birth.getFullYear();
+        const monthDiff = today.getMonth() - birth.getMonth();
+        
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        
+        return age;
+    }
+
+    function getAgeCategory(age) {
+        if (age < 18) return 'Adolescente';
+        if (age >= 18) return 'Adulto';
+        return 'Adulto';
     }
 
     // Success screen

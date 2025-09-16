@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,10 +14,84 @@ export default function CrearGrupo() {
         origin_city: "Zapopan", // Valor por defecto
     });
     const [loading, setLoading] = useState(false);
+    const [addedVisitors, setAddedVisitors] = useState([]);
+
+    useEffect(() => {
+        // Load visitors from sessionStorage
+        const visitors = JSON.parse(sessionStorage.getItem('addedVisitors') || '[]');
+        setAddedVisitors(visitors);
+    }, []);
 
     function handleInputChange(e) {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+    }
+
+    function removeVisitor(visitorId) {
+        const updatedVisitors = addedVisitors.filter(visitor => visitor.id !== visitorId);
+        setAddedVisitors(updatedVisitors);
+        sessionStorage.setItem('addedVisitors', JSON.stringify(updatedVisitors));
+    }
+
+    async function handleCreateGroup() {
+        if (!formData.group_name || !formData.visit_date) {
+            alert("Por favor complete todos los campos obligatorios");
+            return;
+        }
+
+        if (addedVisitors.length === 0) {
+            alert("Debe añadir al menos un visitante para crear el grupo");
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const requestBody = {
+                promoter_id: formData.promoter_id,
+                group_name: formData.group_name,
+                visit_date: formData.visit_date,
+                payment_method: formData.payment_method,
+                origin_city: formData.origin_city,
+                visitors: addedVisitors.map(visitor => ({
+                    name: visitor.name,
+                    lastname: visitor.lastname,
+                    birthdate: visitor.birthdate,
+                    email: visitor.email
+                }))
+            };
+
+            console.log('Enviando datos:', requestBody);
+
+            const response = await fetch('https://lasjaras-api.kerveldev.com/api/promoter-groups', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error ${response.status}: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+            console.log('Respuesta de la API:', result);
+            
+            // Clear visitors from storage
+            sessionStorage.removeItem('addedVisitors');
+            sessionStorage.removeItem('groupData');
+            
+            // Show success and redirect
+            alert(`Grupo "${result.group_name}" creado exitosamente con ${result.visitors_count} visitantes`);
+            router.push('/asociado');
+            
+        } catch (error) {
+            console.error('Error al crear el grupo:', error);
+            alert(`Error al crear el grupo: ${error.message}`);
+        } finally {
+            setLoading(false);
+        }
     }
 
     async function handleSubmit(e) {
@@ -108,6 +182,54 @@ export default function CrearGrupo() {
                                     {loading ? 'Cargando...' : 'Añadir visitantes'}
                                 </Button>
                             </div>
+
+                            {/* Tabla de visitantes añadidos */}
+                            {addedVisitors.length > 0 && (
+                                <div className="mt-8">
+                                    <h3 className="text-lg font-semibold text-gray-800 mb-4" style={{ fontFamily: 'Encode Sans, sans-serif' }}>
+                                        Visitantes
+                                    </h3>
+                                    
+                                    <div className="space-y-3">
+                                        {addedVisitors.map((visitor) => (
+                                            <div key={visitor.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                                <div className="flex justify-between items-center">
+                                                    <div>
+                                                        <h4 className="font-medium text-gray-800" style={{ fontFamily: 'Encode Sans, sans-serif' }}>
+                                                            {visitor.name} {visitor.lastname}
+                                                        </h4>
+                                                        <p className="text-sm text-gray-600">
+                                                            {visitor.category} • {visitor.age} años
+                                                        </p>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-[#B7804F] font-semibold">$200.00 MXN</span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeVisitor(visitor.id)}
+                                                            className="text-red-500 hover:text-red-700 text-sm px-2 py-1 rounded"
+                                                        >
+                                                            Eliminar
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="mt-6">
+                                        <Button
+                                            type="button"
+                                            onClick={handleCreateGroup}
+                                            disabled={loading}
+                                            className="w-full bg-green-600 text-white hover:bg-green-700 py-4 rounded-lg font-medium text-lg"
+                                            style={{ fontFamily: 'Encode Sans, sans-serif' }}
+                                        >
+                                            {loading ? 'Creando Grupo...' : 'Crear Grupo'}
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
 
                             <div className="text-center pt-4">
                                 <button 
