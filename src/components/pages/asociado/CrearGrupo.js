@@ -222,7 +222,7 @@ export default function CrearGrupo() {
                                             type="button"
                                             onClick={handleCreateGroup}
                                             disabled={loading}
-                                            className="w-full bg-green-600 text-white hover:bg-green-700 py-4 rounded-lg font-medium text-lg"
+                                            className="w-full bg-[#B7804F] text-white hover:bg-[#9A6D42] py-4 rounded-lg font-medium text-lg"
                                             style={{ fontFamily: 'Encode Sans, sans-serif' }}
                                         >
                                             {loading ? 'Creando Grupo...' : 'Crear Grupo'}
