@@ -136,9 +136,9 @@ export default function InformacionGrupo({ groupId }) {
 
       if (!response.ok) {
         if (response.status === 422) {
-          throw new Error('No se puede editar el grupo. Verifica que no esté finalizado o cancelado.');
+          throw new Error('No se puede editar el grupo. Es posible que esté finalizado o cancelado.');
         }
-        throw new Error('Error al actualizar el grupo');
+        throw new Error(`Error al actualizar el grupo: ${response.status}`);
       }
 
       // Recargar información del grupo
@@ -432,12 +432,13 @@ export default function InformacionGrupo({ groupId }) {
             {/* Botón Guardar cambios */}
             <button
               onClick={() => setShowEditModal(true)}
-              disabled={!canEditGroup() || actionLoading}
+              disabled={actionLoading}
               className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors ${
-                canEditGroup() && !actionLoading
+                !actionLoading
                   ? 'bg-orange-600 hover:bg-orange-700 text-white'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
+              title="Editar datos del grupo"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -448,12 +449,19 @@ export default function InformacionGrupo({ groupId }) {
             {/* Botón Finalizar Grupo */}
             <button
               onClick={handleFinalizeGroup}
-              disabled={!canFinalizeGroup() || actionLoading}
+              disabled={actionLoading || (grupo?.visitors_count || 0) === 0 || grupo?.settlement_status !== 'none'}
               className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors ${
-                canFinalizeGroup() && !actionLoading
+                !actionLoading && (grupo?.visitors_count || 0) > 0 && grupo?.settlement_status === 'none'
                   ? 'bg-green-600 hover:bg-green-700 text-white'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
+              title={
+                (grupo?.visitors_count || 0) === 0 
+                  ? 'No se puede finalizar. El grupo debe tener al menos 1 visitante.'
+                  : grupo?.settlement_status !== 'none'
+                  ? 'El grupo ya ha sido finalizado.'
+                  : 'Finalizar grupo y congelar comisión'
+              }
             >
               {actionLoading ? (
                 <>
