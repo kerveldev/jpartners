@@ -3,12 +3,16 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
+import VisitanteCard from '@/components/mis-grupos/VisitanteCard';
+import EditarGrupoModal from '@/components/mis-grupos/EditarGrupoModal';
 
 export default function InformacionGrupo({ groupId }) {
   const [grupo, setGrupo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
   const router = useRouter();
 
   // Mock promoter ID - en producción debería venir del contexto de autenticación
@@ -49,6 +53,106 @@ export default function InformacionGrupo({ groupId }) {
     router.push('/mis-grupos');
   };
 
+  // Eliminar visitante
+  const handleDeleteVisitor = async (visitorId) => {
+    if (!confirm('¿Estás seguro de que deseas eliminar este visitante?')) {
+      return;
+    }
+
+    try {
+      setActionLoading(true);
+      const response = await fetch(
+        `https://lasjaras-api.kerveldev.com/api/promoter-groups/${groupId}/visitors/${visitorId}`,
+        {
+          method: 'DELETE',
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 422) {
+          throw new Error('No se puede eliminar el visitante. El grupo no puede quedar vacío.');
+        }
+        throw new Error('Error al eliminar el visitante');
+      }
+
+      // Recargar información del grupo
+      await fetchGrupoDetail();
+      alert('Visitante eliminado correctamente');
+    } catch (err) {
+      alert(err.message);
+      console.error('Error deleting visitor:', err);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Finalizar grupo
+  const handleFinalizeGroup = async () => {
+    if (!confirm('¿Estás seguro de que deseas finalizar este grupo? Esta acción no se puede deshacer.')) {
+      return;
+    }
+
+    try {
+      setActionLoading(true);
+      const response = await fetch(
+        `https://lasjaras-api.kerveldev.com/api/promoter-groups/${groupId}/finalize`,
+        {
+          method: 'PUT',
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 422) {
+          throw new Error('No se puede finalizar el grupo. Debe tener al menos 1 visitante.');
+        }
+        throw new Error('Error al finalizar el grupo');
+      }
+
+      const data = await response.json();
+      setGrupo(data);
+      alert('Grupo finalizado correctamente');
+    } catch (err) {
+      alert(err.message);
+      console.error('Error finalizing group:', err);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Manejar actualización del grupo
+  const handleUpdateGroup = async (updateData) => {
+    try {
+      setActionLoading(true);
+      const response = await fetch(
+        `https://lasjaras-api.kerveldev.com/api/promoter-groups/${groupId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updateData),
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 422) {
+          throw new Error('No se puede editar el grupo. Verifica que no esté finalizado o cancelado.');
+        }
+        throw new Error('Error al actualizar el grupo');
+      }
+
+      // Recargar información del grupo
+      await fetchGrupoDetail();
+      setShowEditModal(false);
+      alert('Grupo actualizado correctamente');
+    } catch (err) {
+      alert(err.message);
+      console.error('Error updating group:', err);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   // Formatear fecha
   const formatDate = (dateString) => {
     if (!dateString) return '';
@@ -85,6 +189,16 @@ export default function InformacionGrupo({ groupId }) {
       default:
         return status || 'Sin estado';
     }
+  };
+
+  // Verificar si el grupo se puede editar
+  const canEditGroup = () => {
+    return grupo?.settlement_status === 'none' && grupo?.status !== 'cancelled';
+  };
+
+  // Verificar si el grupo se puede finalizar
+  const canFinalizeGroup = () => {
+    return grupo?.status === 'active' && grupo?.settlement_status === 'none' && (grupo?.visitors_count || 0) > 0;
   };
 
   if (loading) {
@@ -225,10 +339,10 @@ export default function InformacionGrupo({ groupId }) {
               </div>
             </div>
 
-            {/* Búsqueda de visitantes */}
+            {/* Búsqueda y lista de visitantes */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Lista de Visitantes</h3>
+                <h3 className="text-lg font-semibold text-gray-900">Visitantes</h3>
                 <div className="relative">
                   <input
                     type="text"
@@ -245,23 +359,17 @@ export default function InformacionGrupo({ groupId }) {
                 </div>
               </div>
 
-              {/* Lista de visitantes */}
-              <div className="space-y-2">
+              {/* Lista de visitantes con tarjetas individuales */}
+              <div className="space-y-3">
                 {filteredVisitors.length > 0 ? (
                   filteredVisitors.map((visitor, index) => (
-                    <div key={visitor.id || index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <div className="font-medium text-gray-900">
-                          {visitor.name || `${visitor.first_name || ''} ${visitor.last_name || ''}`.trim() || 'Sin nombre'}
-                        </div>
-                        {visitor.email && (
-                          <div className="text-sm text-gray-500">{visitor.email}</div>
-                        )}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {visitor.ticket_type || 'Entrada general'}
-                      </div>
-                    </div>
+                    <VisitanteCard 
+                      key={visitor.id || index} 
+                      visitor={visitor} 
+                      onDelete={handleDeleteVisitor}
+                      canDelete={filteredVisitors.length > 1}
+                      loading={actionLoading}
+                    />
                   ))
                 ) : (
                   <div className="text-center py-8 text-gray-500">
@@ -272,6 +380,65 @@ export default function InformacionGrupo({ groupId }) {
             </div>
           </div>
         </div>
+
+        {/* Botones de acción fijos en la parte inferior */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-4">
+          <div className="max-w-7xl mx-auto flex items-center justify-center gap-4">
+            {/* Botón Guardar cambios */}
+            <button
+              onClick={() => setShowEditModal(true)}
+              disabled={!canEditGroup() || actionLoading}
+              className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors ${
+                canEditGroup() && !actionLoading
+                  ? 'bg-orange-600 hover:bg-orange-700 text-white'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Guardar cambios
+            </button>
+
+            {/* Botón Finalizar Grupo */}
+            <button
+              onClick={handleFinalizeGroup}
+              disabled={!canFinalizeGroup() || actionLoading}
+              className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors ${
+                canFinalizeGroup() && !actionLoading
+                  ? 'bg-green-600 hover:bg-green-700 text-white'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              {actionLoading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Procesando...
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Finalizar Grupo
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Modal de edición */}
+        {showEditModal && (
+          <EditarGrupoModal
+            grupo={grupo}
+            onSave={handleUpdateGroup}
+            onClose={() => setShowEditModal(false)}
+            loading={actionLoading}
+          />
+        )}
+
+        {/* Espacio adicional para los botones fijos */}
+        <div className="h-20"></div>
       </div>
     </div>
   );
