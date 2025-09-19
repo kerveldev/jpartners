@@ -11,9 +11,17 @@ export default function VisitanteIndividual() {
     const [visitors, setVisitors] = useState([]);
     const [loading, setLoading] = useState(false);
     const [successData, setSuccessData] = useState(null);
+    const [isAddingToExistingGroup, setIsAddingToExistingGroup] = useState(false);
+    const [currentGroupId, setCurrentGroupId] = useState(null);
 
     useEffect(() => {
         const storedGroupData = sessionStorage.getItem('groupData');
+        const addingToExisting = sessionStorage.getItem('addingToExistingGroup') === 'true';
+        const groupId = sessionStorage.getItem('currentGroupId');
+        
+        setIsAddingToExistingGroup(addingToExisting);
+        setCurrentGroupId(groupId);
+        
         if (storedGroupData) {
             const parsedData = JSON.parse(storedGroupData);
             // Asegurar que tenemos los valores por defecto
@@ -84,39 +92,72 @@ export default function VisitanteIndividual() {
         setLoading(true);
 
         try {
-            // Get existing visitors from sessionStorage
-            const existingVisitors = JSON.parse(sessionStorage.getItem('addedVisitors') || '[]');
-            
-            // Add current visitor to the list
-            const newVisitor = {
-                id: Date.now(), // Use timestamp as unique ID
-                name: currentVisitor.name,
-                lastname: currentVisitor.lastname,
-                birthdate: currentVisitor.birthdate,
-                email: currentVisitor.email,
-                phone: currentVisitor.phone || '',
-                age: calculateAge(currentVisitor.birthdate),
-                category: getAgeCategory(calculateAge(currentVisitor.birthdate))
-            };
+            if (isAddingToExistingGroup && currentGroupId) {
+                // Añadir visitante a grupo existente usando la API específica
+                const visitorPayload = {
+                    promoter_id: groupData.promoter_id,
+                    name: currentVisitor.name,
+                    lastname: currentVisitor.lastname,
+                    birthdate: currentVisitor.birthdate,
+                    email: currentVisitor.email,
+                    phone: currentVisitor.phone || ''
+                };
 
-            existingVisitors.push(newVisitor);
-            
-            // Save back to sessionStorage
-            sessionStorage.setItem('addedVisitors', JSON.stringify(existingVisitors));
-            
-            // Clear form
-            setVisitors([{
-                id: 1,
-                name: "",
-                lastname: "",
-                birthdate: "",
-                email: "",
-                phone: ""
-            }]);
+                const response = await fetch(
+                    `https://lasjaras-api.kerveldev.com/api/promoter-groups/${currentGroupId}/visitors`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(visitorPayload)
+                    }
+                );
 
-            // Redirect back to create group with success message
-            alert("Visitante guardado exitosamente");
-            router.push('/asociado/crear');
+                if (!response.ok) {
+                    throw new Error('Error al añadir el visitante al grupo');
+                }
+
+                const result = await response.json();
+                
+                // Limpiar sessionStorage
+                sessionStorage.removeItem('addingToExistingGroup');
+                sessionStorage.removeItem('currentGroupId');
+                sessionStorage.removeItem('groupData');
+                
+                alert("Visitante añadido exitosamente al grupo");
+                router.push(`/mis-grupos/${currentGroupId}`);
+                
+            } else {
+                // Lógica original para crear nuevo grupo
+                const existingVisitors = JSON.parse(sessionStorage.getItem('addedVisitors') || '[]');
+                
+                const newVisitor = {
+                    id: Date.now(),
+                    name: currentVisitor.name,
+                    lastname: currentVisitor.lastname,
+                    birthdate: currentVisitor.birthdate,
+                    email: currentVisitor.email,
+                    phone: currentVisitor.phone || '',
+                    age: calculateAge(currentVisitor.birthdate),
+                    category: getAgeCategory(calculateAge(currentVisitor.birthdate))
+                };
+
+                existingVisitors.push(newVisitor);
+                sessionStorage.setItem('addedVisitors', JSON.stringify(existingVisitors));
+                
+                setVisitors([{
+                    id: 1,
+                    name: "",
+                    lastname: "",
+                    birthdate: "",
+                    email: "",
+                    phone: ""
+                }]);
+
+                alert("Visitante guardado exitosamente");
+                router.push('/asociado/crear');
+            }
             
         } catch (error) {
             console.error('Error al guardar visitante:', error);
@@ -259,10 +300,13 @@ export default function VisitanteIndividual() {
                 <Card className="bg-white shadow-lg rounded-lg">
                     <CardContent className="p-8">
                         <h1 className="text-2xl font-medium text-[#B7804F] mb-2" style={{ fontFamily: 'Roboto Serif, serif' }}>
-                            Añadir Visitante Individual
+                            {isAddingToExistingGroup ? 'Añadir Visitante al Grupo' : 'Añadir Visitante Individual'}
                         </h1>
                         <p className="text-gray-500 mb-8" style={{ fontFamily: 'Encode Sans, sans-serif' }}>
-                            Complete los datos del visitante para generar su código QR de acceso
+                            {isAddingToExistingGroup 
+                                ? `Complete los datos del visitante para añadirlo al grupo "${groupData?.group_name || ''}"` 
+                                : 'Complete los datos del visitante para generar su código QR de acceso'
+                            }
                         </p>
 
                         <form onSubmit={handleSubmit} className="space-y-6">
@@ -342,30 +386,42 @@ export default function VisitanteIndividual() {
                                     className="w-full bg-[#B7804F] text-white hover:bg-[#9A6D42] py-4 rounded-lg font-medium text-lg"
                                     style={{ fontFamily: 'Encode Sans, sans-serif' }}
                                 >
-                                    {loading ? 'Guardando...' : 'Guardar visitante'}
+                                    {loading ? 'Guardando...' : (isAddingToExistingGroup ? 'Añadir al grupo' : 'Guardar visitante')}
                                 </Button>
                             </div>
 
                             <div className="flex justify-between items-center pt-4">
                                 <button 
                                     type="button"
-                                    onClick={() => router.push('/asociado')}
+                                    onClick={() => {
+                                        if (isAddingToExistingGroup && currentGroupId) {
+                                            // Limpiar sessionStorage y volver al grupo
+                                            sessionStorage.removeItem('addingToExistingGroup');
+                                            sessionStorage.removeItem('currentGroupId');
+                                            sessionStorage.removeItem('groupData');
+                                            router.push(`/mis-grupos/${currentGroupId}`);
+                                        } else {
+                                            router.push('/asociado');
+                                        }
+                                    }}
                                     className="text-[#B7804F] text-sm" 
                                     style={{ fontFamily: 'Encode Sans, sans-serif' }}
                                 >
-                                    Volver
+                                    {isAddingToExistingGroup ? 'Volver al grupo' : 'Volver'}
                                 </button>
-                                <button 
-                                    type="button"
-                                    onClick={() => {
-                                        // Mostrar resumen del grupo
-                                        console.log('Ver resumen del grupo');
-                                    }}
-                                    className="text-[#B7804F] text-sm flex items-center gap-1" 
-                                    style={{ fontFamily: 'Encode Sans, sans-serif' }}
-                                >
-                                    Ver resumen del grupo →
-                                </button>
+                                {!isAddingToExistingGroup && (
+                                    <button 
+                                        type="button"
+                                        onClick={() => {
+                                            // Mostrar resumen del grupo
+                                            console.log('Ver resumen del grupo');
+                                        }}
+                                        className="text-[#B7804F] text-sm flex items-center gap-1" 
+                                        style={{ fontFamily: 'Encode Sans, sans-serif' }}
+                                    >
+                                        Ver resumen del grupo →
+                                    </button>
+                                )}
                             </div>
                         </form>
                     </CardContent>

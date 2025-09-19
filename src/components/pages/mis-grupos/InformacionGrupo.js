@@ -153,6 +153,26 @@ export default function InformacionGrupo({ groupId }) {
     }
   };
 
+  // Manejar añadir visitante - redirigir a página existente
+  const handleAddVisitor = () => {
+    // Guardar el ID del grupo actual para regresar después
+    sessionStorage.setItem('currentGroupId', groupId);
+    sessionStorage.setItem('addingToExistingGroup', 'true');
+    
+    // Guardar datos del grupo actual para el contexto
+    const groupContext = {
+      group_name: grupo.group_name,
+      visit_date: grupo.visit_date,
+      origin_city: grupo.origin_city || 'Zapopan',
+      payment_method: grupo.payment_method || 'cash',
+      promoter_id: promoterId
+    };
+    sessionStorage.setItem('groupData', JSON.stringify(groupContext));
+    
+    // Redirigir a la página de añadir visitante
+    router.push('/asociado/visitante');
+  };
+
   // Formatear fecha
   const formatDate = (dateString) => {
     if (!dateString) return '';
@@ -343,18 +363,37 @@ export default function InformacionGrupo({ groupId }) {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">Visitantes</h3>
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Buscar visitante..."
-                    value={searchTerm}
-                    onChange={handleSearch}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-10"
-                  />
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <div className="flex items-center gap-3">
+                  {/* Botón Añadir Visitante */}
+                  <button
+                    onClick={handleAddVisitor}
+                    disabled={!canEditGroup() || actionLoading}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      canEditGroup() && !actionLoading
+                        ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                     </svg>
+                    Añadir Visitante
+                  </button>
+                  
+                  {/* Barra de búsqueda */}
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Buscar visitante..."
+                      value={searchTerm}
+                      onChange={handleSearch}
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-10"
+                    />
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </div>
                   </div>
                 </div>
               </div>
