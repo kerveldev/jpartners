@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import Header from "@/components/Header";
 
 export default function ListaVisitantes() {
     const visitantes = [
@@ -11,9 +12,11 @@ export default function ListaVisitantes() {
     ];
 
     return (
-        <div className="min-h-screen py-12 px-4 md:px-10 flex justify-center">
-            <Card className="w-full max-w-6xl bg-white/95 border border-[#e4d1b0] shadow-2xl rounded-3xl transition-transform hover:scale-[1.01] duration-200">
-                <CardContent className="p-6 md:p-12">
+        <div className="min-h-screen bg-gray-50">
+            <Header />
+            <div className="py-12 px-4 md:px-10 flex justify-center">
+                <Card className="w-full max-w-6xl bg-white/95 border border-[#e4d1b0] shadow-2xl rounded-3xl transition-transform hover:scale-[1.01] duration-200">
+                    <CardContent className="p-6 md:p-12">
                     <h1 className="text-3xl md:text-4xl font-bold text-[#62380e] tracking-tight">Lista de Visitantes Registrados</h1>
                     <p className="text-sm text-gray-600 mb-6">Grupo: Familia Rodríguez - 24 Junio 2023</p>
 
@@ -65,8 +68,9 @@ export default function ListaVisitantes() {
                     <div className="mt-6">
                         <button className="w-full bg-[#8c4a11] text-white py-3 rounded font-semibold">Finalizar Grupo</button>
                     </div>
-                </CardContent>
-            </Card>
+                    </CardContent>
+                </Card>
+            </div>
         </div>
     );
 }

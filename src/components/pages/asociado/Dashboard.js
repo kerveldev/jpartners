@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import Header from "@/components/Header";
 
 export default function AsociadoDashboard() {
     const router = useRouter();
@@ -80,9 +81,11 @@ export default function AsociadoDashboard() {
         }).format(amount);
     };
     return (
-        <div className="min-h-screen py-12 px-4 md:px-10 flex items-center justify-center">
-            <Card className="w-full max-w-6xl bg-white/95 border border-[#e4d1b0] shadow-2xl rounded-3xl transition-transform hover:scale-[1.01] hover:shadow-gold/60 duration-200">
-                <CardContent className="p-6 md:p-12">
+        <div className="min-h-screen bg-gray-50">
+            <Header />
+            <div className="py-12 px-4 md:px-10 flex items-center justify-center">
+                <Card className="w-full max-w-6xl bg-white/95 border border-[#e4d1b0] shadow-2xl rounded-3xl transition-transform hover:scale-[1.01] hover:shadow-gold/60 duration-200">
+                    <CardContent className="p-6 md:p-12">
                     {/* Encabezado principal */}
                     <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                         <div>
@@ -375,8 +378,9 @@ export default function AsociadoDashboard() {
                             </Button>
                         </div>
                     </section>
-                </CardContent>
-            </Card>
+                    </CardContent>
+                </Card>
+            </div>
         </div>
     );
 }
