@@ -216,6 +216,11 @@ export default function InformacionGrupo({ groupId }) {
     return grupo?.settlement_status === 'none' && grupo?.status !== 'cancelled';
   };
 
+  // Verificar si se pueden añadir visitantes
+  const canAddVisitors = () => {
+    return grupo?.status === 'active' && grupo?.status !== 'cancelled' && grupo?.status !== 'past';
+  };
+
   // Verificar si el grupo se puede finalizar
   const canFinalizeGroup = () => {
     return grupo?.status === 'active' && grupo?.settlement_status === 'none' && (grupo?.visitors_count || 0) > 0;
@@ -367,12 +372,13 @@ export default function InformacionGrupo({ groupId }) {
                   {/* Botón Añadir Visitante */}
                   <button
                     onClick={handleAddVisitor}
-                    disabled={!canEditGroup() || actionLoading}
+                    disabled={!canAddVisitors() || actionLoading}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      canEditGroup() && !actionLoading
+                      canAddVisitors() && !actionLoading
                         ? 'bg-blue-600 hover:bg-blue-700 text-white'
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     }`}
+                    title={!canAddVisitors() ? 'No se pueden añadir visitantes. El grupo debe estar activo.' : 'Añadir visitante al grupo'}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
