@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function GrupoCard({ grupo }) {
   const [showQR, setShowQR] = useState(false);
+  const router = useRouter();
 
   // Formatear fecha
   const formatDate = (dateString) => {
@@ -47,8 +49,20 @@ export default function GrupoCard({ grupo }) {
     return `https://lasjaras.com/grupo/${grupoId}`;
   };
 
+  // Manejar click en la tarjeta
+  const handleCardClick = (e) => {
+    // Evitar navegación si se hace click en botones
+    if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+      return;
+    }
+    router.push(`/mis-grupos/${grupo.id}`);
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div 
+      className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 cursor-pointer hover:shadow-md transition-shadow"
+      onClick={handleCardClick}
+    >
       <div className="flex items-start justify-between">
         {/* Información principal del grupo */}
         <div className="flex-1">
