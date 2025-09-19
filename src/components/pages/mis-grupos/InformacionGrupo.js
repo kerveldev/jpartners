@@ -88,6 +88,17 @@ export default function InformacionGrupo({ groupId }) {
 
   // Finalizar grupo
   const handleFinalizeGroup = async () => {
+    // Validaciones básicas en el cliente
+    if ((grupo?.visitors_count || 0) === 0) {
+      alert('No se puede finalizar el grupo. Debe tener al menos 1 visitante.');
+      return;
+    }
+
+    if (grupo?.settlement_status !== 'none') {
+      alert('El grupo ya ha sido finalizado anteriormente.');
+      return;
+    }
+
     if (!confirm('¿Estás seguro de que deseas finalizar este grupo? Esta acción no se puede deshacer.')) {
       return;
     }
@@ -103,14 +114,16 @@ export default function InformacionGrupo({ groupId }) {
 
       if (!response.ok) {
         if (response.status === 422) {
-          throw new Error('No se puede finalizar el grupo. Debe tener al menos 1 visitante.');
+          const errorData = await response.json().catch(() => ({}));
+          const errorMessage = errorData.message || 'No se puede finalizar el grupo. Verifica que tenga al menos 1 visitante y no esté ya finalizado.';
+          throw new Error(errorMessage);
         }
-        throw new Error('Error al finalizar el grupo');
+        throw new Error(`Error al finalizar el grupo: ${response.status}`);
       }
 
       const data = await response.json();
       setGrupo(data);
-      alert('Grupo finalizado correctamente');
+      alert('Grupo finalizado correctamente. La comisión ha sido congelada.');
     } catch (err) {
       alert(err.message);
       console.error('Error finalizing group:', err);
@@ -449,19 +462,13 @@ export default function InformacionGrupo({ groupId }) {
             {/* Botón Finalizar Grupo */}
             <button
               onClick={handleFinalizeGroup}
-              disabled={actionLoading || (grupo?.visitors_count || 0) === 0 || grupo?.settlement_status !== 'none'}
+              disabled={actionLoading}
               className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors ${
-                !actionLoading && (grupo?.visitors_count || 0) > 0 && grupo?.settlement_status === 'none'
+                !actionLoading
                   ? 'bg-green-600 hover:bg-green-700 text-white'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
-              title={
-                (grupo?.visitors_count || 0) === 0 
-                  ? 'No se puede finalizar. El grupo debe tener al menos 1 visitante.'
-                  : grupo?.settlement_status !== 'none'
-                  ? 'El grupo ya ha sido finalizado.'
-                  : 'Finalizar grupo y congelar comisión'
-              }
+              title="Finalizar grupo y congelar comisión"
             >
               {actionLoading ? (
                 <>
